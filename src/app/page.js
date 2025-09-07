@@ -2,14 +2,25 @@
 
 // any component that uses useAuth needs this because if a component directly imports useAuth, it needs to be a client component since useAuth uses React hooks.
 
+import { getUser } from '@/api/user';
+import AuthRedirect from '@/components/AuthRedirect';
 import { signOut } from '@/utils/auth'; // anything in the src dir, you can use the @ instead of relative paths
 import { useAuth } from '@/utils/context/authContext';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import AuthRedirect from '@/components/AuthRedirect';
 
 function Home() {
   const { user } = useAuth();
+  const [firebaseKey, setFirebaseKey] = useState(null);
+
+  useEffect(() => {
+    if (user && user.uid) {
+      getUser(user.uid).then((userRecord) => {
+        setFirebaseKey(userRecord?.firebaseKey || null);
+      });
+    }
+  }, [user]);
 
   return (
     <>
@@ -34,11 +45,17 @@ function Home() {
               Quest Board
             </Button>
           </Link>
-          <Link href="/newpage2" passHref>
-            <Button className="btn btn-primary" type="button">
+          {firebaseKey ? (
+            <Link href={`/profile/${firebaseKey}`} passHref>
+              <Button className="btn btn-primary" type="button">
+                My Archive
+              </Button>
+            </Link>
+          ) : (
+            <Button className="btn btn-primary" type="button" disabled>
               My Archive
             </Button>
-          </Link>
+          )}
           <Link href="/newquestion" passHref>
             <Button className="btn btn-primary" type="button">
               Create Question
