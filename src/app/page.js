@@ -39,7 +39,7 @@ function Home() {
               My Archive
             </Button>
           </Link>
-          <Link href="/newpage3" passHref>
+          <Link href="/newquestion" passHref>
             <Button className="btn btn-primary" type="button">
               Create Question
             </Button>
