@@ -61,7 +61,7 @@ function Home() {
               Create Question
             </Button>
           </Link>
-          <Link href="/newpage4" passHref>
+          <Link href="/adventurers" passHref>
             <Button className="btn btn-primary" type="button">
               All Adventurers
             </Button>
