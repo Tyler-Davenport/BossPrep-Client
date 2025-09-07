@@ -29,7 +29,7 @@ function Home() {
           Sign Out
         </Button>
         <div className="d-grid gap-2 mt-4">
-          <Link href="/newpage1" passHref>
+          <Link href="/questboard" passHref>
             <Button className="btn btn-primary" type="button">
               Quest Board
             </Button>
