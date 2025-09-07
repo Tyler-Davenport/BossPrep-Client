@@ -4,7 +4,7 @@ const endpoint = clientCredentials.databaseURL;
 
 const getTrialQuestionsByUser = (firebaseKey) =>
   new Promise((resolve, reject) => {
-    fetch(`${endpoint}/trial-questions?userId=${firebaseKey}`, {
+    fetch(`${endpoint}/trial-questions?user=${firebaseKey}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     })
@@ -54,9 +54,20 @@ const deleteTrialQuestion = (id) =>
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
     })
-      .then((res) => res.json())
-      .then(resolve)
+      .then((res) => {
+        if (res.status === 204 || res.status === 200) {
+          resolve();
+        } else {
+          res.text().then((text) => {
+            try {
+              resolve(JSON.parse(text));
+            } catch {
+              resolve();
+            }
+          });
+        }
+      })
       .catch(reject);
   });
 
-export { getTrialQuestionsByUser, getTrialQuestion, createTrialQuestion, updateTrialQuestion, deleteTrialQuestion };
+export { createTrialQuestion, deleteTrialQuestion, getTrialQuestion, getTrialQuestionsByUser, updateTrialQuestion };
