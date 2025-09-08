@@ -2,6 +2,7 @@
 
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -11,6 +12,7 @@ import { useAuth } from '../../utils/context/authContext';
 
 function QuestionForm() {
   const { user } = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     job_role: '',
     job_field: '',
@@ -39,10 +41,8 @@ function QuestionForm() {
         return;
       }
       const payload = { ...formData, created_by: firebaseKey };
-      console.log('Submitting question payload:', payload);
       await createQuestion(payload);
-      setStatus('Question submitted successfully!');
-      setFormData({ job_role: '', job_field: '', question_text: '' });
+      router.push(`/profile/${firebaseKey}/questions`);
     } catch (err) {
       setStatus('Error submitting question.');
     }

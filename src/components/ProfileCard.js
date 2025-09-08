@@ -15,7 +15,6 @@ function ProfileCard({ user }) {
         <Card.Title>{user.displayName}</Card.Title>
         <Card.Subtitle className="mb-2 text-muted">{user.name}</Card.Subtitle>
         <Card.Text>{user.email}</Card.Text>
-        {/* Dynamic link to user's profile */}
         <Link href={`/profile/${user.firebaseKey}`} passHref legacyBehavior>
           <button style={{ marginTop: '1rem' }}>View Profile</button>
         </Link>

@@ -62,12 +62,9 @@ function UserForm({ obj = {} }) {
     if (formInput?.firebaseKey && obj?.firebaseKey) {
       updateUser(formInput.firebaseKey, formInput)
         .then(() => {
-          console.log('User updated, redirecting to home...');
           router.push('/');
         })
-        .catch((err) => {
-          console.error('User update failed:', err);
-        });
+        .catch(() => {});
     } else {
       const payload = {
         ...formInput,
@@ -77,12 +74,9 @@ function UserForm({ obj = {} }) {
       };
       createUser(payload)
         .then(() => {
-          console.log('User created, redirecting to home...');
           router.push('/');
         })
-        .catch((err) => {
-          console.error('User creation failed:', err);
-        });
+        .catch(() => {});
     }
   };
 
