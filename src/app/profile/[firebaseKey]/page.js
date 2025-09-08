@@ -4,6 +4,7 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { getTrialQuestionsByUser } from '../../../api/trialQuestionData';
@@ -67,8 +68,12 @@ export default function ProfilePage({ params }) {
 
       {/* Dynamic buttons for created questions and trials */}
       <div style={{ marginTop: '2rem', marginBottom: '1rem', display: 'flex', gap: '1rem' }}>
-        <Button variant="info">{profile.displayName}'s Created Questions</Button>
-        <Button variant="secondary">{profile.displayName}'s Created Trials</Button>
+        <Link href={`/profile/${profile.firebaseKey}/questions`} passHref legacyBehavior>
+          <Button variant="info" as="a">
+            {profile.displayName}&apos;s Created Questions
+          </Button>
+        </Link>
+        <Button variant="secondary">{profile.displayName}&apos;s Created Trials</Button>
       </div>
 
       <div style={{ marginTop: '2rem' }}>

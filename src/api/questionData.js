@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+
 import { clientCredentials } from '../utils/client';
 
 const endpoint = clientCredentials.databaseURL;
@@ -54,9 +56,14 @@ const deleteQuestion = (id) =>
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
     })
-      .then((res) => res.json())
-      .then(resolve)
+      .then((res) => {
+        if (res.status === 204 || res.headers.get('content-length') === '0') {
+          resolve();
+        } else {
+          return res.json().then(resolve);
+        }
+      })
       .catch(reject);
   });
 
-export { getQuestions, getQuestion, createQuestion, updateQuestion, deleteQuestion };
+export { createQuestion, deleteQuestion, getQuestion, getQuestions, updateQuestion };
