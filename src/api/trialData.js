@@ -15,7 +15,7 @@ const getTrials = () =>
 
 const getTrialsByCreator = (firebaseKey) =>
   new Promise((resolve, reject) => {
-    fetch(`${endpoint}/trials?creator=${firebaseKey}`, {
+    fetch(`${endpoint}/trials?created_by=${firebaseKey}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     })

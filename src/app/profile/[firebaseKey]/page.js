@@ -21,7 +21,6 @@ export default function ProfilePage({ params }) {
   const [uid, setUid] = useState(null);
 
   useEffect(() => {
-    // Fetch all users and find the one with matching firebaseKey
     getUsers().then((users) => {
       const foundUser = users.find((u) => u.firebaseKey === firebaseKey);
       if (foundUser) {
@@ -57,7 +56,6 @@ export default function ProfilePage({ params }) {
       <p>
         <strong>Email:</strong> {profile.email}
       </p>
-      {/* Add more profile fields as needed */}
       {isOwner && (
         <div style={{ marginTop: '2rem' }}>
           <Button variant="primary" style={{ marginRight: '1rem' }}>
@@ -66,14 +64,17 @@ export default function ProfilePage({ params }) {
         </div>
       )}
 
-      {/* Dynamic buttons for created questions and trials */}
       <div style={{ marginTop: '2rem', marginBottom: '1rem', display: 'flex', gap: '1rem' }}>
         <Link href={`/profile/${profile.firebaseKey}/questions`} passHref legacyBehavior>
           <Button variant="info" as="a">
             {profile.displayName}&apos;s Created Questions
           </Button>
         </Link>
-        <Button variant="secondary">{profile.displayName}&apos;s Created Trials</Button>
+        <Link href={`/trials/${profile.firebaseKey}`} passHref legacyBehavior>
+          <Button variant="secondary" as="a">
+            {profile.displayName}&apos;s Created Trials
+          </Button>
+        </Link>
       </div>
 
       <div style={{ marginTop: '2rem' }}>
