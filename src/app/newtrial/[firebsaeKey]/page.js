@@ -1,6 +1,7 @@
 'use client';
 
 import { createTrial } from '@/api/trialData';
+import { updateTrialQuestion } from '@/api/trialQuestionData';
 import { getUser } from '@/api/user';
 import TrialForm from '@/components/forms/trialForm';
 import { useAuth } from '@/utils/context/authContext';
@@ -22,7 +23,9 @@ export default function NewTrialPage() {
     if (!user?.uid || !firebaseKey) return null;
     const payload = { ...trialData, created_by: firebaseKey };
     const created = await createTrial(payload);
-    // Navigate back to the user's trials page
+    if (created && created.id && trialData.selectedQuestions && trialData.selectedQuestions.length > 0) {
+      await Promise.all(trialData.selectedQuestions.map((qId) => updateTrialQuestion(qId, { trial: created.id })));
+    }
     router.push(`/trials/${firebaseKey}`);
     return created;
   };

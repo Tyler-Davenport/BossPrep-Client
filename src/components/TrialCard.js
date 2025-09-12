@@ -1,10 +1,12 @@
 /* eslint-disable react/prop-types */
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import { getUsers } from '../api/user';
 
 function TrialCard({ trial, isOwner }) {
+  const router = useRouter();
   const [creatorName, setCreatorName] = useState('');
 
   useEffect(() => {
@@ -22,10 +24,14 @@ function TrialCard({ trial, isOwner }) {
           <strong>Created By:</strong> {creatorName}
         </Card.Text>
         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-          <Button variant="primary">View</Button>
+          <Button variant="primary" onClick={() => router.push(`/trials/${trial.created_by}/taketrial/${trial.id}`)}>
+            View
+          </Button>
           {isOwner && (
             <>
-              <Button variant="warning">Update</Button>
+              <Button variant="warning" onClick={() => router.push(`/edittrial/${trial.id}`)}>
+                Update
+              </Button>
               <Button variant="danger">Delete</Button>
             </>
           )}
