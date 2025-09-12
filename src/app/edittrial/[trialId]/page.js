@@ -1,56 +1,46 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-shadow */
 /* eslint-disable react/prop-types */
 
 'use client';
 
-import { getTrial } from '@/api/trialData';
-import { getTrialQuestionsByTrialId } from '@/api/trialQuestionData';
 import TrialForm from '@/components/forms/trialForm';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function EditTrialPage({ params }) {
-  const { trialId } = params;
-  const [initialData, setInitialData] = useState({});
-  const [attachedQuestions, setAttachedQuestions] = useState([]);
-  const router = useRouter();
+  const [title, setTitle] = useState('');
 
+  // Fetch trial title on mount
   useEffect(() => {
-    Promise.all([getTrial(trialId), getTrialQuestionsByTrialId(trialId)]).then(([trial, trialQuestions]) => {
-      setInitialData({ title: trial.title });
-      setAttachedQuestions(trialQuestions.map((tq) => String(tq.id)));
-    });
-  }, [trialId]);
+    async function fetchTrial() {
+      try {
+        const { getTrial } = await import('@/api/trialData');
+        const trial = await getTrial(params.trialId);
+        setTitle(trial.title || '');
+      } catch (err) {
+        setTitle('');
+      }
+    }
+    fetchTrial();
+  }, [params.trialId]);
 
   const handleSubmit = async (formData) => {
     try {
-      const trial = await getTrial(trialId);
-      if (trial.title !== formData.title) {
-        const dbUrl = process.env.NEXT_PUBLIC_DB_URL || 'http://localhost:8000';
-        await fetch(`${dbUrl}/trials/${trialId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: formData.title, created_by: trial.created_by }),
-        });
-      }
-      const firebaseKey = trial.created_by;
-      if (firebaseKey) {
-        alert('Trial updated! Redirecting...');
-        router.push(`/trials/${firebaseKey}`);
-      } else {
-        alert('Trial updated, but could not find trial owner.');
-      }
+      const { updateTrial, getTrial } = await import('@/api/trialData');
+      const trial = await getTrial(params.trialId);
+      await updateTrial(params.trialId, { title: formData.title, created_by: trial.created_by });
+      // Redirect to trials page for the owner
+      window.location.href = `/trials/${trial.created_by}`;
     } catch (err) {
       alert(`Error updating trial: ${err?.message || err}`);
     }
   };
 
-  useEffect(() => {}, [initialData, attachedQuestions]);
-
   return (
     <div style={{ maxWidth: 700, margin: '2rem auto' }}>
       <h2>Edit Trial</h2>
-      <TrialForm onSubmit={handleSubmit} initialData={initialData} attachedQuestions={attachedQuestions} isEdit />
+      <TrialForm onSubmit={handleSubmit} initialData={{ title }} attachedQuestions={[]} isEdit />
     </div>
   );
 }

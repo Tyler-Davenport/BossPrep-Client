@@ -14,10 +14,10 @@ export default function NewTrialPage() {
   const [firebaseKey, setFirebaseKey] = useState(null);
 
   useEffect(() => {
-    if (user?.uid) {
+    if (user?.uid && !firebaseKey) {
       getUser(user.uid).then((u) => setFirebaseKey(u?.firebaseKey || null));
     }
-  }, [user]);
+  }, [user, firebaseKey]);
 
   const handleCreateTrial = async (trialData) => {
     if (!user?.uid || !firebaseKey) return null;

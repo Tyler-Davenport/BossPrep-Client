@@ -13,12 +13,14 @@ import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 
 export default function TakeTrialPage({ params }) {
+  const [showResponses, setShowResponses] = useState({});
   const { trialId } = params;
   const [trialQuestions, setTrialQuestions] = useState([]);
   const [questionMap, setQuestionMap] = useState({});
   const [responses, setResponses] = useState({});
   const [newResponse, setNewResponse] = useState({});
   const { user } = useAuth();
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     getTrialQuestionsByTrialId(trialId).then((trialQuestionsData) => {
@@ -39,6 +41,9 @@ export default function TakeTrialPage({ params }) {
         map[question.id] = question;
       });
       setQuestionMap(map);
+    });
+    import('@/api/user').then(({ getUsers }) => {
+      getUsers().then(setUsers);
     });
   }, [trialId]);
 
@@ -88,20 +93,46 @@ export default function TakeTrialPage({ params }) {
                 <Card.Subtitle className="mb-2 text-muted">{question ? question.job_field : ''}</Card.Subtitle>
                 <Card.Text>{question ? question.question_text : ''}</Card.Text>
                 <div style={{ marginTop: '1rem', background: '#f8f9fa', padding: '1rem', borderRadius: 8 }}>
-                  <h6>Responses</h6>
-                  <div style={{ marginBottom: '1rem' }}>
-                    {responseArray.length === 0 ? (
-                      <div style={{ color: '#888' }}>No responses yet.</div>
-                    ) : (
-                      responseArray.map((response) => (
-                        <div key={response.id} style={{ marginBottom: '0.5rem', padding: '0.5rem', background: '#fff', borderRadius: 4 }}>
-                          <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{response.user}</div>
-                          <div style={{ fontSize: '1rem' }}>{response.response_text}</div>
-                          <div style={{ fontSize: '0.8rem', color: '#888' }}>{new Date(response.created_at).toLocaleString()}</div>
-                        </div>
-                      ))
-                    )}
-                  </div>
+                  <Button variant="outline-secondary" size="sm" style={{ marginBottom: '1rem' }} onClick={() => setShowResponses((prev) => ({ ...prev, [trialQuestion.id]: !prev[trialQuestion.id] }))}>
+                    {showResponses[trialQuestion.id] ? 'Hide Responses' : `Show Responses (${responseArray.length})`}
+                  </Button>
+                  {showResponses[trialQuestion.id] && (
+                    <div style={{ marginBottom: '1rem' }}>
+                      {responseArray.length === 0 ? (
+                        <div style={{ color: '#888' }}>No responses yet.</div>
+                      ) : (
+                        responseArray.map((response) => {
+                          const responder = users.find((u) => u.firebaseKey === response.user || u.uid === response.user);
+                          const canDelete = user && (user.uid === response.user || user.firebaseKey === response.user);
+                          return (
+                            <div key={response.id} style={{ marginBottom: '0.5rem', padding: '0.5rem', background: '#fff', borderRadius: 4, position: 'relative' }}>
+                              <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{responder ? responder.displayName : response.user}</div>
+                              <div style={{ fontSize: '1rem' }}>{response.response_text}</div>
+                              <div style={{ fontSize: '0.8rem', color: '#888' }}>{new Date(response.created_at).toLocaleString()}</div>
+                              {canDelete && (
+                                <Button
+                                  variant="outline-danger"
+                                  size="sm"
+                                  style={{ position: 'absolute', top: 8, right: 8 }}
+                                  onClick={async () => {
+                                    const { deleteResponse } = await import('@/api/responseData');
+                                    await deleteResponse(response.id);
+                                    setResponses((prev) => {
+                                      const updated = { ...prev };
+                                      updated[trialQuestion.id] = updated[trialQuestion.id].filter((r) => r.id !== response.id);
+                                      return updated;
+                                    });
+                                  }}
+                                >
+                                  Delete
+                                </Button>
+                              )}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
                   <Form.Group className="mb-3" controlId={`response-${trialQuestion.id}`}>
                     <Form.Label>Leave a response</Form.Label>
                     <Form.Control as="textarea" rows={2} placeholder="Type your response..." value={newResponse[trialQuestion.id] || ''} onChange={(e) => handleResponseChange(trialQuestion.id, e.target.value)} />

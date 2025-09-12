@@ -65,8 +65,19 @@ const deleteResponse = (id) =>
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
     })
-      .then((res) => res.json())
-      .then(resolve)
+      .then(async (res) => {
+        // If response is empty, resolve with nothing
+        const text = await res.text();
+        if (!text) {
+          resolve();
+        } else {
+          try {
+            resolve(JSON.parse(text));
+          } catch {
+            resolve();
+          }
+        }
+      })
       .catch(reject);
   });
 
