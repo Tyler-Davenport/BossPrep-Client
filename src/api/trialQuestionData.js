@@ -70,4 +70,15 @@ const deleteTrialQuestion = (id) =>
       .catch(reject);
   });
 
-export { createTrialQuestion, deleteTrialQuestion, getTrialQuestion, getTrialQuestionsByUser, updateTrialQuestion };
+const getTrialQuestionsByTrialId = (trialId) =>
+  new Promise((resolve, reject) => {
+    fetch(`${endpoint}/trial-questions?trial=${trialId}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
+      .then((res) => res.json())
+      .then(resolve)
+      .catch(reject);
+  });
+
+export { createTrialQuestion, deleteTrialQuestion, getTrialQuestion, getTrialQuestionsByTrialId, getTrialQuestionsByUser, updateTrialQuestion };
