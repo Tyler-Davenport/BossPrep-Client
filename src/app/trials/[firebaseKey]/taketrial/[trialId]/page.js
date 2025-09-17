@@ -104,11 +104,40 @@ export default function TakeTrialPage({ params }) {
                         responseArray.map((response) => {
                           const responder = users.find((u) => u.firebaseKey === response.user || u.uid === response.user);
                           const canDelete = user && (user.uid === response.user || user.firebaseKey === response.user);
+                          const canMove = user && (user.uid === response.user || user.firebaseKey === response.user);
                           return (
                             <div key={response.id} style={{ marginBottom: '0.5rem', padding: '0.5rem', background: '#fff', borderRadius: 4, position: 'relative' }}>
                               <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{responder ? responder.displayName : response.user}</div>
                               <div style={{ fontSize: '1rem' }}>{response.response_text}</div>
                               <div style={{ fontSize: '0.8rem', color: '#888' }}>{new Date(response.created_at).toLocaleString()}</div>
+                              {canMove && (
+                                <Form.Select
+                                  size="sm"
+                                  style={{ marginTop: '0.5rem', maxWidth: 300 }}
+                                  value={response.trial_question}
+                                  onChange={async (e) => {
+                                    const newTrialQuestionId = e.target.value;
+                                    const { updateResponse } = await import('@/api/responseData');
+                                    await updateResponse(response.id, { ...response, trial_question: newTrialQuestionId });
+                                    // Remove from current list and add to new trial_question list
+                                    setResponses((prev) => {
+                                      const updated = { ...prev };
+                                      // Remove from old
+                                      updated[trialQuestion.id] = updated[trialQuestion.id].filter((r) => r.id !== response.id);
+                                      // Add to new
+                                      if (!updated[newTrialQuestionId]) updated[newTrialQuestionId] = [];
+                                      updated[newTrialQuestionId] = [...updated[newTrialQuestionId], { ...response, trial_question: newTrialQuestionId }];
+                                      return updated;
+                                    });
+                                  }}
+                                >
+                                  {trialQuestions.map((tq) => (
+                                    <option key={tq.id} value={tq.id}>
+                                      Move to: {questionMap[tq.question]?.question_text || `Question #${tq.id}`}
+                                    </option>
+                                  ))}
+                                </Form.Select>
+                              )}
                               {canDelete && (
                                 <Button
                                   variant="outline-danger"
