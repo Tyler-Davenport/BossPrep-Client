@@ -81,4 +81,4 @@ const deleteResponse = (id) =>
       .catch(reject);
   });
 
-export { getResponses, getResponsesByQuestion, getResponse, createResponse, updateResponse, deleteResponse };
+export { createResponse, deleteResponse, getResponse, getResponses, getResponsesByQuestion, updateResponse };
